@@ -6,6 +6,7 @@ import SymptomsScreen from '../screens/symptoms/SymptomsScreen';
 import SymptomDetailScreen from '../screens/symptoms/SymptomDetailScreen';
 import SymptomTrackingScreen from '../screens/symptoms/SymptomTrackingScreen';
 import AskExpertScreen from '../screens/expert/AskExpertScreen';
+import ChatScreen from '../screens/expert/ChatScreen';
 import PatientExperiencesScreen from '../screens/experiences/PatientExperiencesScreen';
 import ExperienceDetailScreen from '../screens/experiences/ExperienceDetailScreen';
 import DiseaseInfoScreen from '../screens/about/DiseaseInfoScreen';
@@ -50,6 +51,11 @@ const MainNavigator = () => {
         name="AskExpert"
         component={AskExpertScreen}
         options={{ title: 'Uzmana Sor' }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({ route }) => ({ title: route.params?.expert?.name || 'Doktor Chat' })}
       />
       <Stack.Screen
         name="PatientExperiences"

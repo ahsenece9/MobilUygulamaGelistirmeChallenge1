@@ -5,25 +5,18 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
-  Modal,
   Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../theme/colors';
 import { experts } from '../../data/mockData';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const AskExpertScreen = () => {
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
-  const [selectedExpert, setSelectedExpert] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -32,23 +25,6 @@ const AskExpertScreen = () => {
     }, 800);
     return () => clearTimeout(t);
   }, []);
-
-  const handleAsk = () => {
-    if (!question.trim()) {
-      Alert.alert('Uyarı', 'Lütfen sorunuzu yazın.');
-      return;
-    }
-    setSent(true);
-    setQuestion('');
-    setTimeout(() => {
-      setModalVisible(false);
-      setSent(false);
-      Alert.alert(
-        'Sorunuz İletildi!',
-        `${selectedExpert?.name} sorunuzu aldı. En kısa sürede size geri dönecektir.`
-      );
-    }, 1500);
-  };
 
   if (loading) return <LoadingSpinner message="Uzmanlar yükleniyor..." />;
 
@@ -79,12 +55,11 @@ const AskExpertScreen = () => {
               Alert.alert('Müsait Değil', 'Bu uzman şu anda müsait değil. Lütfen daha sonra tekrar deneyin.');
               return;
             }
-            setSelectedExpert(item);
-            setModalVisible(true);
+            navigation.navigate('Chat', { expert: item });
           }}
         >
           <Text style={styles.askButtonText}>
-            {item.available ? 'Soru Sor' : 'Müsait Değil'}
+            {item.available ? '💬 Sohbet Başlat' : 'Müsait Değil'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -101,65 +76,13 @@ const AskExpertScreen = () => {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.infoCard}>
-            <Text style={styles.infoIcon}>💡</Text>
+            <Text style={styles.infoIcon}>💬</Text>
             <Text style={styles.infoText}>
-              Alanında uzman doktorlarımıza sorularınızı iletebilirsiniz. Yeşil nokta müsaitliği gösterir.
+              Alanında uzman doktorlarımızla anlık sohbet edebilirsiniz. Yeşil nokta müsaitliği gösterir.
             </Text>
           </View>
         }
       />
-
-      {/* Question Modal */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>
-              {selectedExpert?.name}'e Soru Sor
-            </Text>
-            <Text style={styles.modalSubtitle}>{selectedExpert?.specialty}</Text>
-
-            <TextInput
-              style={styles.questionInput}
-              multiline
-              numberOfLines={5}
-              placeholder="Sorunuzu buraya yazın..."
-              placeholderTextColor={colors.grayMedium}
-              value={question}
-              onChangeText={setQuestion}
-              textAlignVertical="top"
-            />
-
-            <TouchableOpacity
-              style={[styles.sendButton, sent && styles.sendButtonSent]}
-              onPress={handleAsk}
-              disabled={sent}
-            >
-              <Text style={styles.sendButtonText}>
-                {sent ? '✓ Gönderildi!' : '📤 Gönder'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => {
-                setModalVisible(false);
-                setQuestion('');
-              }}
-            >
-              <Text style={styles.cancelButtonText}>İptal</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
     </SafeAreaView>
   );
 };
@@ -215,57 +138,12 @@ const styles = StyleSheet.create({
   experience: { fontSize: 12, color: colors.textSecondary },
   askButton: {
     backgroundColor: colors.primary,
-    paddingHorizontal: 18,
+    paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
   },
   askButtonDisabled: { backgroundColor: colors.grayMedium },
   askButtonText: { color: colors.white, fontSize: 13, fontWeight: '700' },
-  // Modal
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: colors.white,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    paddingBottom: 36,
-  },
-  modalHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: colors.grayMedium,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: colors.primary, marginBottom: 4 },
-  modalSubtitle: { fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
-  questionInput: {
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 15,
-    color: colors.textPrimary,
-    minHeight: 120,
-    marginBottom: 16,
-    backgroundColor: colors.background,
-  },
-  sendButton: {
-    backgroundColor: colors.primary,
-    padding: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  sendButtonSent: { backgroundColor: colors.success },
-  sendButtonText: { color: colors.white, fontSize: 16, fontWeight: '700' },
-  cancelButton: { padding: 12, alignItems: 'center' },
-  cancelButtonText: { color: colors.textSecondary, fontSize: 15 },
 });
 
 export default AskExpertScreen;
