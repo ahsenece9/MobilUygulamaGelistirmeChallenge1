@@ -69,4 +69,5 @@ Dijital sağlık uygulamaları, bireylerin bilgiye erişimini kolaylaştırarak 
 Bu uygulama, kullanıcıların temel sağlık bilgilerine erişimini destekleyen bir mobil farkındalık projesi olarak geliştirilmiştir.
 
 👩‍💻 Geliştirici
+
 Ahsen Ece Hancı
