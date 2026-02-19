@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,16 +8,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
+import { useLikes } from '../../context/LikesContext';
 
 const ExperienceDetailScreen = ({ route }) => {
   const { experience } = route.params;
-  const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(experience.likes);
-
-  const handleLike = () => {
-    setLiked((v) => !v);
-    setLikes((l) => (liked ? l - 1 : l + 1));
-  };
+  const { likes, toggleLike } = useLikes();
+  const likeData = likes[experience.id];
+  const liked = likeData?.liked ?? false;
+  const likeCount = likeData?.count ?? experience.likes;
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
@@ -61,10 +59,10 @@ const ExperienceDetailScreen = ({ route }) => {
           </Text>
 
           {/* Like Button */}
-          <TouchableOpacity style={styles.likeButton} onPress={handleLike}>
+          <TouchableOpacity style={styles.likeButton} onPress={() => toggleLike(experience.id)}>
             <Text style={styles.likeIcon}>{liked ? '❤️' : '🤍'}</Text>
             <Text style={[styles.likeText, liked && styles.likeTextActive]}>
-              {liked ? 'Beğenildi' : 'Beğen'} ({likes})
+              {liked ? 'Beğenildi' : 'Beğen'} ({likeCount})
             </Text>
           </TouchableOpacity>
 

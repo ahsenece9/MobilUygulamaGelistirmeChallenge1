@@ -11,6 +11,7 @@ import { colors } from '../../theme/colors';
 import { patientExperiences } from '../../data/mockData';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import EmptyState from '../../components/common/EmptyState';
+import { useLikes } from '../../context/LikesContext';
 
 const categoryFilters = ['Tümü', 'İyileşme Hikayesi', 'Erken Teşhis', 'Psikolojik Destek'];
 
@@ -18,6 +19,7 @@ const PatientExperiencesScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [activeFilter, setActiveFilter] = useState('Tümü');
+  const { likes, toggleLike } = useLikes();
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -69,10 +71,15 @@ const PatientExperiencesScreen = ({ navigation }) => {
             <Text style={styles.moreTag}>+{item.tags.length - 2}</Text>
           )}
         </View>
-        <View style={styles.likesRow}>
-          <Text style={styles.likeIcon}>❤️</Text>
-          <Text style={styles.likesCount}>{item.likes}</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.likesRow}
+          onPress={() => toggleLike(item.id)}
+        >
+          <Text style={styles.likeIcon}>{likes[item.id]?.liked ? '❤️' : '🤍'}</Text>
+          <Text style={[styles.likesCount, likes[item.id]?.liked && styles.likesCountActive]}>
+            {likes[item.id]?.count ?? item.likes}
+          </Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -186,6 +193,7 @@ const styles = StyleSheet.create({
   likesRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 8 },
   likeIcon: { fontSize: 14 },
   likesCount: { fontSize: 13, fontWeight: '700', color: colors.textSecondary },
+  likesCountActive: { color: colors.primary },
 });
 
 export default PatientExperiencesScreen;

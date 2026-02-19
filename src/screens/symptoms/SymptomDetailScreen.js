@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '../../theme/colors';
@@ -81,9 +80,6 @@ const SymptomDetailScreen = ({ route }) => {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.expertButton}>
-            <Text style={styles.expertButtonText}>👩‍⚕️ Uzmana Danış</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
