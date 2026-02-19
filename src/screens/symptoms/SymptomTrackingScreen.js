@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,10 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../../theme/colors';
+
+const STORAGE_KEY = '@symptom_entries';
 
 const symptomOptions = [
   { id: 'pain', label: 'Ağrı', icon: '🔴' },
@@ -25,10 +28,13 @@ const SymptomTrackingScreen = () => {
   const [severity, setSeverity] = useState(5);
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
-  const [entries, setEntries] = useState([
-    { date: '18 Şubat 2026', symptoms: ['Yorgunluk', 'Bulantı'], severity: 4, note: 'Kemoterapi sonrası' },
-    { date: '17 Şubat 2026', symptoms: ['Ağrı'], severity: 6, note: '' },
-  ]);
+  const [entries, setEntries] = useState([]);
+
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then((data) => {
+      if (data) setEntries(JSON.parse(data));
+    });
+  }, []);
 
   const toggleSymptom = (id, label) => {
     setSelectedSymptoms((prev) =>
@@ -46,7 +52,12 @@ const SymptomTrackingScreen = () => {
       month: 'long',
       year: 'numeric',
     });
-    setEntries((prev) => [{ date: today, symptoms: selectedSymptoms, severity, note }, ...prev]);
+    const newEntry = { date: today, symptoms: selectedSymptoms, severity, note };
+    setEntries((prev) => {
+      const updated = [newEntry, ...prev];
+      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
     setSelectedSymptoms([]);
     setSeverity(5);
     setNote('');
